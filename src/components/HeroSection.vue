@@ -7,13 +7,18 @@
     const filteredResults = ref([]);
     const router = useRouter();
 
-    // Filtrado de artículos (en vivo)
+    /* Normaliza para comparar sin tildes ni mayúsculas */
+    const norm = (s = "") =>
+        s
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+
+    /* Filtrado de artículos (en vivo) — misma funcionalidad, más robusto */
     const handleInput = () => {
-        if (searchText.value.length > 0) {
-            const query = searchText.value.toLowerCase();
-            filteredResults.value = articles.filter((article) =>
-                article.title.toLowerCase().includes(query)
-            );
+        const q = norm(searchText.value);
+        if (q.length > 0) {
+            filteredResults.value = articles.filter((article) => norm(article.title).includes(q));
         } else {
             filteredResults.value = [];
         }
@@ -27,7 +32,7 @@
 <template>
     <div
         class="hero-section p-5 d-flex flex-column align-items-center justify-content-center position-relative color">
-        <h1 class="kb-category-title-buscador text-white">¿Cómo podemos ayudar?</h1>
+        <h1 class="kb-category-title-buscador text-white">¿Cómo puedo ayudarte?</h1>
 
         <!-- Buscador estilo pill con ícono -->
         <form class="kb-search mt-4" role="search" @submit.prevent>
@@ -119,20 +124,24 @@
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
-        overflow: hidden;
+        overflow: auto; // scroll si hay muchos resultados
+        max-height: 360px; // límite de alto
         box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
         z-index: 100;
+    }
+
+    /* Separadores suaves entre resultados */
+    .kb-search-results .dropdown-item + .dropdown-item {
+        border-top: 1px solid #f0f2f5;
     }
 
     .dropdown-item:hover,
     .dropdown-item:focus {
         background-color: $gray-lighter;
     }
-</style>
 
-<!--
-Este componente muestra el buscador principal:
-- Input estilo pill con ícono y sombra suave.
-- Resultados en vivo con dropdown del mismo ancho del input.
-- Navega al artículo al hacer clic y limpia la búsqueda.
--->
+    /* Asegura contexto posicionado */
+    .position-relative {
+        position: relative;
+    }
+</style>

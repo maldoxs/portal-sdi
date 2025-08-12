@@ -1,11 +1,13 @@
 <template>
     <div class="container my-5">
-        <!-- Breadcrumb -->
+        <!-- ✅ Breadcrumb dinámico -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><router-link to="/">Home</router-link></li>
+                <li class="breadcrumb-item"><router-link to="/">Inicio</router-link></li>
                 <li class="breadcrumb-item">
-                    <router-link to="/my-account">My Account</router-link>
+                    <router-link :to="{ name: 'Category', params: { categorySlug } }">
+                        {{ categoryDisplay }}
+                    </router-link>
                 </li>
                 <li class="breadcrumb-item active" aria-current="page">{{ article.title }}</li>
             </ol>
@@ -21,7 +23,7 @@
             <!-- Menú lateral -->
             <div class="col-lg-4 d-none d-lg-block">
                 <div class="card p-4 mb-4 sticky-top" style="top: 20px">
-                    <h5 class="card-title">Contents</h5>
+                    <h5 class="card-title">Contenido</h5>
                     <nav class="nav nav-pills flex-column">
                         <a
                             v-for="heading in headings"
@@ -43,18 +45,36 @@
     import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
     import { useRoute } from "vue-router";
     import { articles } from "../data/articles.js";
+    import { topics } from "../data/topics.js";
 
     const route = useRoute();
     const activeHeadingId = ref("");
     const headings = ref([]);
 
-    // Computa el artículo basándose en el ID de la URL
+    /* Artículo actual por ID */
     const article = computed(() => {
         const articleId = route.params.articleId;
         return articles.find((a) => a.id === articleId) || {};
     });
 
-    // Extrae los títulos del contenido del artículo
+    /* slug/category y nombre visible para el breadcrumb */
+    const slugify = (s) =>
+        (s || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, "")
+            .trim()
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-");
+
+    const categorySlug = computed(() => slugify(article.value.category || "my-account"));
+    const categoryDisplay = computed(() => {
+        const t = topics.find((x) => x.slug === categorySlug.value);
+        return t?.display || article.value.category || "Mi Cuenta";
+    });
+
+    /* Extrae los títulos del contenido del artículo */
     const extractHeadings = () => {
         const tempEl = document.createElement("div");
         tempEl.innerHTML = article.value.content;
@@ -67,10 +87,7 @@
                 .replace(/ /g, "-")
                 .replace(/[^\w-]+/g, "");
             el.id = id;
-            return {
-                id: id,
-                text: el.innerText,
-            };
+            return { id, text: el.innerText };
         });
 
         document.querySelector(".article-content").innerHTML = tempEl.innerHTML;
@@ -81,46 +98,31 @@
     };
 
     const handleScroll = () => {
-        // Obtenemos todos los títulos del DOM
         const headingElements = document.querySelectorAll(
             ".article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6"
         );
+        if (headingElements.length === 0) return;
 
-        if (headingElements.length === 0) {
-            return;
-        }
-
-        // Caso 1: Si hemos llegado al final de la página, marcamos el último título
         const isAtBottom =
-            window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50; // Pequeño margen de 50px
+            window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
         if (isAtBottom) {
             activeHeadingId.value = headings.value[headings.value.length - 1].id;
             return;
         }
 
-        // Caso 2 & 3: Iteramos para encontrar el título activo
         let currentActiveId = activeHeadingId.value;
         for (let i = 0; i < headingElements.length; i++) {
             const el = headingElements[i];
             const rect = el.getBoundingClientRect();
-
-            // Si el título está visible en la parte superior del viewport con un margen de 100px, lo marcamos
-            if (rect.top <= 100) {
-                currentActiveId = el.id;
-            } else {
-                // Si el título actual ya ha pasado la parte superior,
-                // salimos del bucle para no marcar un título más abajo.
-                break;
-            }
+            if (rect.top <= 100) currentActiveId = el.id;
+            else break;
         }
         activeHeadingId.value = currentActiveId;
     };
 
     const scrollToHeading = (id) => {
         const el = document.getElementById(id);
-        if (el) {
-            el.scrollIntoView({ behavior: "smooth" });
-        }
+        if (el) el.scrollIntoView({ behavior: "smooth" });
     };
 
     watch(article, () => {
@@ -128,7 +130,7 @@
             extractHeadings();
             nextTick(() => {
                 window.addEventListener("scroll", handleScroll);
-                handleScroll(); // Llama una vez para establecer el estado inicial
+                handleScroll();
             });
         }
     });
@@ -138,7 +140,7 @@
             extractHeadings();
             nextTick(() => {
                 window.addEventListener("scroll", handleScroll);
-                handleScroll(); // Llama una vez para establecer el estado inicial
+                handleScroll();
             });
         }
     });
@@ -164,7 +166,6 @@
         font-weight: bold;
         border-radius: 0.25rem;
     }
-
     .nav-link:hover,
     .nav-link:focus {
         background-color: transparent;

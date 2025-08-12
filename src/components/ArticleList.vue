@@ -42,15 +42,15 @@
         </div>
 
         <!-- Controles de paginación -->
-        <div class="d-flex justify-content-end mt-4">
+        <div class="d-flex justify-content-start mt-4">
             <button class="btn btn-light me-2" @click="prevPage" :disabled="currentPage === 1">
-                &lt; Prev
+                &lt; Anterior
             </button>
             <button
                 class="btn btn-light"
                 @click="nextPage"
                 :disabled="currentPage * pageSize >= articles.length">
-                Next &gt;
+                Siguiente &gt;
             </button>
         </div>
     </div>

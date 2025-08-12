@@ -16,8 +16,8 @@
             <div class="col-lg-8">
                 <HelpTopics />
             </div>
-            <div class="col-lg-4 d-none d-lg-block mt-5">
-                <div class="card p-4">
+            <div class="col-lg-4 d-none d-lg-block">
+                <div class="card p-4 fondo mt-5">
                     <PopularArticles />
                     <!-- <NeedSupport /> -->
                 </div>

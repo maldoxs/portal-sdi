@@ -6,18 +6,20 @@
             >
 
             <nav class="d-none d-md-flex gap-3">
-                <router-link to="/" class="text-decoration-none kb-link">Inicio</router-link>
-                <router-link :to="{ name: 'Account' }" class="text-decoration-none kb-link"
+                <router-link to="/" class="text-decoration-none fw-bold kb-link"
+                    >Inicio</router-link
+                >
+                <router-link :to="{ name: 'Account' }" class="text-decoration-none fw-bold kb-link"
                     >Mi Cuenta</router-link
                 >
                 <router-link
                     :to="{ name: 'Category', params: { categorySlug: 'billing-and-payments' } }"
-                    class="text-decoration-none kb-link"
+                    class="text-decoration-none fw-bold kb-link"
                     >Facturación y pagos</router-link
                 >
                 <router-link
                     :to="{ name: 'Category', params: { categorySlug: 'developers' } }"
-                    class="text-decoration-none kb-link"
+                    class="text-decoration-none fw-bold kb-link"
                     >Desarrolladores</router-link
                 >
             </nav>
