@@ -1,32 +1,36 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light py-3 border-bottom color">
-        <div class="container">
-            <router-link to="/" class="navbar-brand">
-                <i class="bi bi-check-circle-fill text-primary"></i> KnowAll
-            </router-link>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown">
-                        <a
-                            class="nav-link dropdown-toggle"
-                            href="#"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            >Features</a
-                        >
-                        <ul class="dropdown-menu">
-                            ...
-                        </ul>
-                    </li>
-                    <li class="nav-item"><a class="nav-link" href="#">Blocks</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">FAQ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Buy KnowAll</a></li>
-                </ul>
-            </div>
+    <header class="border-bottom">
+        <div class="container d-flex align-items-center justify-content-between py-3">
+            <router-link to="/" class="text-decoration-none fw-bold kb-link"
+                >Centro de Ayuda</router-link
+            >
+
+            <nav class="d-none d-md-flex gap-3">
+                <router-link to="/" class="text-decoration-none kb-link">Inicio</router-link>
+                <router-link :to="{ name: 'Account' }" class="text-decoration-none kb-link"
+                    >Mi Cuenta</router-link
+                >
+                <router-link
+                    :to="{ name: 'Category', params: { categorySlug: 'billing-and-payments' } }"
+                    class="text-decoration-none kb-link"
+                    >Facturación y pagos</router-link
+                >
+                <router-link
+                    :to="{ name: 'Category', params: { categorySlug: 'developers' } }"
+                    class="text-decoration-none kb-link"
+                    >Desarrolladores</router-link
+                >
+            </nav>
         </div>
-    </nav>
+    </header>
 </template>
 
 <script setup>
     import "bootstrap/dist/js/bootstrap.bundle.min.js";
 </script>
+
+<style>
+    .kb-link.fw-bold {
+        font-weight: 400 !important;
+    }
+</style>

@@ -6,11 +6,13 @@
 </script>
 
 <template>
+    <div class="container-fluid color">
+        <div class="col-lg-12 d-flex justify-content-center">
+            <HeroSection />
+        </div>
+    </div>
     <div class="container my-5">
         <div class="row">
-            <div class="col-lg-12 d-flex justify-content-center">
-                <HeroSection />
-            </div>
             <div class="col-lg-8">
                 <HelpTopics />
             </div>

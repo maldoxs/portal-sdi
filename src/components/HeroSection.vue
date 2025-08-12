@@ -1,13 +1,13 @@
 <script setup>
     import { ref } from "vue";
     import { useRouter } from "vue-router";
-    import { articles } from "../data/articles.js"; // <-- Importa la base de datos de artículos
+    import { articles } from "../data/articles.js";
 
     const searchText = ref("");
     const filteredResults = ref([]);
     const router = useRouter();
 
-    // Lógica de filtrado de artículos
+    // Filtrado de artículos (en vivo)
     const handleInput = () => {
         if (searchText.value.length > 0) {
             const query = searchText.value.toLowerCase();
@@ -19,41 +19,39 @@
         }
     };
 
-    const handleSearch = () => {
-        if (filteredResults.value.length > 0) {
-            router.push(`/my-account/${filteredResults.value[0].id}`);
-            clearSearch();
-        }
-    };
-
     const clearSearch = () => {
         searchText.value = "";
     };
 </script>
+
 <template>
     <div
-        class="hero-section p-5 bg-light col-lg-8 d-flex flex-column align-items-center justify-content-center position-relative">
-        <h1>How can we help?</h1>
-        <div class="input-group mt-4" style="max-width: 600px">
-            <input
-                type="text"
-                class="form-control"
-                v-model="searchText"
-                placeholder="Search the knowledge base"
-                @input="handleInput" />
-            <button class="btn btn-primary" @click="handleSearch">Search</button>
-        </div>
+        class="hero-section p-5 d-flex flex-column align-items-center justify-content-center position-relative color">
+        <h1 class="kb-category-title-buscador text-white">¿Cómo podemos ayudar?</h1>
 
-        <!-- Menú de vista previa de búsqueda -->
+        <!-- Buscador estilo pill con ícono -->
+        <form class="kb-search mt-4" role="search" @submit.prevent>
+            <i class="bi bi-search kb-search-icon" aria-hidden="true"></i>
+            <input
+                type="search"
+                class="form-control kb-search-input"
+                v-model="searchText"
+                placeholder="Buscar en la base de conocimientos..."
+                aria-label="Buscar en la base de conocimientos"
+                @input="handleInput" />
+        </form>
+
+        <!-- Resultados (dropdown) -->
         <div
             v-if="searchText.length > 0 && filteredResults.length > 0"
-            class="position-absolute start-50 translate-middle-x bg-white border rounded-3 overflow-hidden shadow mt-2"
-            style="width: 600px; top: 100%; z-index: 100">
+            class="kb-search-results"
+            role="listbox">
             <router-link
                 v-for="article in filteredResults"
                 :key="article.id"
                 :to="`/my-account/${article.id}`"
                 class="dropdown-item d-flex align-items-start p-3 text-start text-decoration-none text-dark"
+                role="option"
                 @click="clearSearch">
                 <i class="bi bi-file-earmark-text text-muted me-3 mt-1"></i>
                 <div>
@@ -68,14 +66,62 @@
 <style scoped lang="scss">
     @use "../styles/variables" as *;
 
+    /* Título del hero (mantiene tu fuente y color) */
     .hero-section h1 {
-        font-family: $font-family-title;
+        font-family: $font-family-body;
         font-weight: 400;
         color: $text-title;
     }
 
-    .position-relative {
+    /* ====== Estilo del buscador tipo pill ====== */
+    .kb-search {
         position: relative;
+        width: min(860px, 92vw); // ancho similar al mock
+    }
+
+    .kb-search-input {
+        height: 56px;
+        border-radius: 9999px;
+        border: none; // sin borde bootstrap
+        padding-left: 56px; // espacio para el ícono
+        font-size: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .kb-search-input::placeholder {
+        color: #9aa3af; // gris placeholder
+    }
+
+    .kb-search-input:focus {
+        outline: none;
+        border: none;
+        // halo suave sobre el fondo azul
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 0 0 5px rgba(36, 78, 141, 0.35);
+    }
+
+    .kb-search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 22px;
+        color: #111;
+        pointer-events: none;
+    }
+
+    /* ====== Dropdown de resultados ====== */
+    .kb-search-results {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(860px, 92vw); // mismo ancho del input
+        top: calc(100% + 8px); // debajo del input
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+        z-index: 100;
     }
 
     .dropdown-item:hover,
@@ -85,8 +131,8 @@
 </style>
 
 <!--
-Este es el componente principal que los usuarios ven al llegar a la página. Su función es:
-Proporcionar la interfaz de búsqueda: Contiene el campo de texto y el botón de "Search".
-Manejar la búsqueda instantánea: A medida que el usuario escribe, este componente filtra la lista de artículos y muestra una vista previa en un menú desplegable.
-Redireccionar al hacer clic: Cuando el usuario hace clic en un resultado de la vista previa, redirige a la página del artículo correspondiente.
+Este componente muestra el buscador principal:
+- Input estilo pill con ícono y sombra suave.
+- Resultados en vivo con dropdown del mismo ancho del input.
+- Navega al artículo al hacer clic y limpia la búsqueda.
 -->

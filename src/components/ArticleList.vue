@@ -27,15 +27,18 @@
 
 <template>
     <div>
-        <div v-for="article in paginatedArticles" :key="article.id" class="border-top py-3">
-            <h4>
+        <div
+            v-for="article in paginatedArticles"
+            :key="article.id"
+            class="border-top kb-sidebar-padding">
+            <h4 class="kb-article-title">
                 <router-link
                     :to="`/my-account/${article.id}`"
                     class="text-decoration-none text-dark"
                     >{{ article.title }}</router-link
                 >
             </h4>
-            <p class="text-muted">{{ article.excerpt }}</p>
+            <p class="kb-article-excerpt">{{ article.excerpt }}</p>
         </div>
 
         <!-- Controles de paginación -->
