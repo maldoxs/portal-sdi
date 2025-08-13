@@ -114,3 +114,15 @@
         box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
     }
 </style>
+
+<!--
+Función: Muestra una cuadrícula de categorías de ayuda.
+
+Lógica:
+Combina datos de topics.js y articles.js para mostrar el nombre de la categoría, su descripción, un ícono y el número total de artículos.
+Utiliza una función slugify para estandarizar los nombres y emparejar categorías y artículos.
+La propiedad computed items se encarga de ordenar las categorías y añadirles el conteo.
+Dependencias: topics.js, articles.js, Vue Router.
+Observaciones: Es un componente clave en la página de inicio para que los usuarios puedan explorar temas.
+
+-->

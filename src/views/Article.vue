@@ -179,3 +179,19 @@
         font-weight: bold;
     }
 </style>
+
+<!--
+
+Función: Muestra el contenido completo de un solo artículo.
+
+Lógica:
+
+Utiliza useRoute para obtener el articleId de la URL y encontrar el artículo correspondiente en articles.js.
+
+Extrae dinámicamente los títulos (h2, h3, etc.) del contenido HTML del artículo para crear una tabla de contenido lateral.
+Implementa lógica de scroll para resaltar el título activo en la tabla de contenido a medida que el usuario navega por la página.
+Dependencias: articles.js, topics.js, Vue Router.
+Observaciones: Es una vista muy interactiva y funcional que mejora la experiencia de lectura de los artículos.
+
+
+-->

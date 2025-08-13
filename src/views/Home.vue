@@ -2,7 +2,6 @@
     import HeroSection from "../components/HeroSection.vue";
     import HelpTopics from "../components/HelpTopics.vue";
     import PopularArticles from "../components/PopularArticles.vue";
-    // import NeedSupport from "../components/NeedSupport.vue";
 </script>
 
 <template>
@@ -19,7 +18,6 @@
             <div class="col-lg-4 d-none d-lg-block">
                 <div class="card p-4 fondo mt-5">
                     <PopularArticles />
-                    <!-- <NeedSupport /> -->
                 </div>
             </div>
         </div>
@@ -27,7 +25,11 @@
 </template>
 
 <!--
-Esta es la vista de la página de inicio. Su función es:
-Servir como contenedor: Contiene y organiza otros componentes como HeroSection.vue y ArticleList.vue (si estuviera en la página de inicio).
-En este caso, su rol principal es ser la página de aterrizaje del sitio.
+EFunción: Es la vista de la página de inicio.
+
+Lógica:
+Simplemente actúa como un contenedor para los componentes principales de la página de inicio.
+Renderiza HeroSection (el buscador), HelpTopics (los temas de ayuda) y PopularArticles (los artículos populares).
+Dependencias: HeroSection.vue, HelpTopics.vue, PopularArticles.vue.
+Observaciones: Su función es principalmente estructural, organizando los componentes en la página de aterrizaje.
 -->

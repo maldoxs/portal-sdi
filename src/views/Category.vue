@@ -113,3 +113,17 @@
         articles.filter((a) => slugify(a.category) === categorySlug.value)
     );
 </script>
+
+<!--
+Función: Muestra una lista de artículos de una categoría específica.
+
+Lógica:
+
+Obtiene el categorySlug de la URL para filtrar los artículos de articles.js.
+Muestra un encabezado con la información de la categoría (display, description, icon).
+Incluye una barra lateral que lista todas las categorías con sus respectivos conteos de artículos, similar a Account.vue.
+Dependencias: Breadcrumbs.vue, topics.js, articles.js, Vue Router.
+Observaciones: Al igual que Account.vue, esta vista está diseñada para la navegación por categorías, pero utiliza un diseño de lista diferente.
+
+
+-->

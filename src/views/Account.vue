@@ -1,6 +1,6 @@
 <template>
     <div class="container my-5">
-        <!-- ✅ Breadcrumb dinámico -->
+        <!-- Breadcrumb dinámico -->
         <Breadcrumbs :items="[{ text: current.display }]" />
 
         <div class="row">
@@ -142,3 +142,17 @@
         transition: color 0.12s ease, background-color 0.12s ease;
     }
 </style>
+
+<!--
+
+Función: Actúa como la vista de la página "Mi Cuenta" y de las páginas de categoría.
+
+Lógica:
+Utiliza la misma lógica que HelpTopics.vue para inferir la categoría actual a partir de la URL y contar los artículos.
+Muestra un encabezado dinámico con el ícono y la descripción de la categoría.
+Renderiza el componente ArticleList para mostrar los artículos paginados de la categoría actual.
+Incluye una barra lateral con la lista de todas las categorías.
+Dependencias: ArticleList.vue, Breadcrumbs.vue, topics.js, articles.js, Vue Router.
+Observaciones: Es una vista versátil que se utiliza para múltiples rutas gracias al enrutamiento dinámico.
+
+-->

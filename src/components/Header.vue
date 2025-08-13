@@ -2,7 +2,7 @@
     <header class="border-bottom">
         <div class="container d-flex align-items-center justify-content-between py-3">
             <router-link to="/" class="text-decoration-none fw-bold kb-link"
-                >Centro de Ayuda</router-link
+                >Departamento Sistemas de Impuestos Directos e Indirectos Ayuda</router-link
             >
 
             <nav class="d-none d-md-flex gap-3">
@@ -36,3 +36,12 @@
         font-weight: 400 !important;
     }
 </style>
+
+<!--
+
+Función: Encabezado principal de la aplicación.
+Lógica: Contiene el logo y una barra de navegación con enlaces estáticos a la página de inicio, "Mi Cuenta" y a algunas categorías principales.
+Dependencias: Vue Router, Bootstrap.
+Observaciones: Es un componente de diseño que se muestra en todas las páginas.
+
+-->

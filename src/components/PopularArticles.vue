@@ -51,3 +51,15 @@
         color: #295ba7 !important;
     }
 </style>
+
+<!--
+
+Función: Muestra una lista estática de artículos populares.
+
+Lógica:
+Renderiza una lista de artículos con datos codificados directamente en el componente.
+Actualmente, los enlaces no son dinámicos ni se basan en una lógica real.
+Dependencias: Ninguna (datos internos).
+Observaciones: Es un componente simple para la barra lateral que podría ser mejorado para obtener artículos populares de manera dinámica.
+
+-->

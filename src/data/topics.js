@@ -50,3 +50,14 @@ export const topics = [
         order: 6,
     },
 ];
+
+/*
+
+Función: Almacena los datos de las categorías de la base de conocimientos.
+
+Lógica: Exporta un array de objetos, donde cada uno contiene la información de una categoría (slug, display, description, icon, order).
+Dependencias: Ninguna.
+
+Observaciones: Proporciona la estructura y el contenido para los temas de ayuda y la navegación.
+
+ */

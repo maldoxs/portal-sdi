@@ -20,3 +20,15 @@ app.use(router);
 
 // Monta la aplicación en el DOM
 app.mount("#app");
+
+/*
+Función: Punto de entrada de la aplicación.
+
+Lógica:
+Crea la instancia de la aplicación Vue.
+Configura y usa el enrutador (router/index.js).
+Importa todos los archivos CSS y SCSS globales (bootstrap, bootstrap-icons, style.css, main.scss).
+Monta la aplicación en el elemento #app del DOM.
+Dependencias: Vue, Vue Router, Bootstrap.
+
+*/

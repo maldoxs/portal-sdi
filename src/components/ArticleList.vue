@@ -57,8 +57,11 @@
 </template>
 
 <!--
-Este componente es responsable de mostrar una lista paginada de artículos en la vista de "My Account". Su función es:
-Mostrar una lista de artículos: Itera sobre la lista de artículos y crea un enlace para cada uno.
-Manejar la paginación: Implementa la lógica para mostrar solo 5 artículos por página y proporciona los botones "Siguiente" y "Anterior".
-Redireccionar al artículo: Al hacer clic en un título, el router-link redirige al usuario a la vista del artículo completo.
+Función: Muestra una lista de artículos con paginación.
+
+Lógica:
+Utiliza ref para la página actual (currentPage) y computed para calcular qué artículos mostrar de articles.js según el tamaño de la página (pageSize = 5).
+Proporciona dos botones, "Anterior" y "Siguiente", para navegar entre las páginas, deshabilitándolos en los límites.
+Dependencias: articles.js, Vue Router.
+Observaciones: Es un componente reutilizable, pensado para ser usado en vistas como Account.vue, donde la lista de artículos es larga.
 -->

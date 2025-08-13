@@ -26,3 +26,15 @@ const router = createRouter({
 });
 
 export default router;
+
+/*
+
+Función: Archivo de configuración del enrutador (Vue Router).
+
+Lógica:
+Define las rutas de la aplicación: / (Home), /my-account (Account), /category/:categorySlug (Category), y /my-account/:articleId (Article).
+Utiliza createWebHistory para rutas amigables.
+Define rutas dinámicas para las categorías y los artículos.
+Dependencias: Vue Router.
+Observaciones: Es crucial para la navegación de la aplicación.
+*/

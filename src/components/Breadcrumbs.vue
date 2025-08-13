@@ -79,3 +79,14 @@
         </ol>
     </nav>
 </template>
+
+<!--
+Función: Crea un componente de "migas de pan" o ruta de navegación.
+
+Lógica:
+Puede recibir una propiedad (props.items) para una ruta personalizada.
+Si no recibe props, infiere la ruta automáticamente a partir de los parámetros de la URL (useRoute) y busca el nombre de visualización en topics.js.
+Construye la lista de enlaces (trail) que siempre comienza con "Inicio".
+Dependencias: topics.js, Vue Router.
+Observaciones: Es un componente fundamental para la navegación y la orientación del usuario, utilizado en casi todas las vistas de la aplicación.
+-->

@@ -170,7 +170,11 @@ export const articles = [
 ];
 
 /*
-Este es un archivo de utilidad que no es un componente. Su función es:
-Centralizar los datos: Almacena toda la información de los artículos (ID, título, contenido, etc.)
-en un solo lugar. Esto asegura que todos los componentes usen la misma información y facilita la gestión de los artículos.
+Función: Almacena los datos de todos los artículos de la base de conocimientos.
+
+Lógica: Es un simple archivo de exportación que contiene un array de objetos, donde cada objeto representa un artículo con su id, title, category, excerpt y content (en formato HTML).
+Dependencias: Ninguna.
+Observaciones: Sirve como la "base de datos" local de la aplicación.
+
+
 */
