@@ -2,18 +2,14 @@
     <div class="row">
         <h2 class="mb-4 kb-category-title">Temas de ayuda</h2>
 
-        <div v-for="t in items" :key="t.slug" class="col-md-6 mb-4">
+        <div v-for="t in categories" :key="t.slug" class="col-md-6 mb-4">
             <router-link
                 :to="{ name: 'Category', params: { categorySlug: t.slug } }"
                 class="card h-100 p-3 text-decoration-none text-dark d-flex flex-row align-items-start">
-                <!-- Ícono -->
                 <span class="kb-topic-icon me-3 mt-4" aria-hidden="true">
-                    <!-- Prefiere SVG; si no hay, usa la clase existente -->
-                    <span v-if="t.iconSvg" v-html="t.iconSvg"></span>
-                    <i v-else :class="t.iconClass || t.icon"></i>
+                    <i :class="t.icon"></i>
                 </span>
 
-                <!-- Texto -->
                 <div class="py-4">
                     <small class="topic-count">{{ articlesLabel(t.count) }}</small>
                     <h5 class="mt-1 mb-1 kb-topic-title d-flex align-items-baseline gap-2">
@@ -28,41 +24,30 @@
 
 <script setup>
     import { computed } from "vue";
-    import { topics } from "../data/topics.js"; // usa tu alias
-    import { articles } from "../data/articles.js"; // fuente para los conteos
+    import { topics } from "../data/topics.js";
+    import { articles } from "../data/articles.js";
 
-    /* slugify para empatar category de articles.js con topics.js */
-    const slugify = (s) =>
-        (s || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-") || "general";
-
-    /* Conteos reales por categoría */
     const countsBySlug = computed(() =>
-        articles.reduce((acc, a) => {
-            const s = slugify(a.category);
-            acc[s] = (acc[s] || 0) + 1;
+        articles.reduce((acc, article) => {
+            acc[article.category] = (acc[article.category] || 0) + 1;
             return acc;
         }, {})
     );
 
-    /* Lista a renderizar: respeta tu orden y añade count */
-    const items = computed(() =>
+    const articlesLabel = (count) => {
+        if (count === 0) return "0 artículos";
+        if (count === 1) return "1 artículo";
+        return `${count} artículos`;
+    };
+
+    const categories = computed(() =>
         [...topics]
             .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
             .map((t) => ({
                 ...t,
-                count: countsBySlug.value[t.slug] ?? 0,
+                count: countsBySlug.value[t.slug] || 0,
             }))
     );
-
-    /* Etiqueta “(N artículos)” con singular/plural correcto */
-    const articlesLabel = (n) => `(${n} artículo${n === 1 ? "" : "s"})`;
 </script>
 
 <style scoped>

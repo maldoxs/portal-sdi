@@ -1,19 +1,57 @@
+<template>
+    <div>
+        <div
+            v-for="article in paginatedArticles"
+            :key="article.id"
+            class="border-top kb-sidebar-padding">
+            <h4 class="kb-article-title">
+                <router-link
+                    :to="{ name: 'Article', params: { articleId: article.id } }"
+                    class="text-decoration-none text-dark"
+                    >{{ article.title }}</router-link
+                >
+            </h4>
+            <p class="kb-article-excerpt">{{ article.excerpt }}</p>
+        </div>
+
+        <div class="d-flex justify-content-start mt-4" v-if="totalPages > 1">
+            <button class="btn btn-light me-2" @click="prevPage" :disabled="currentPage === 1">
+                &lt; Anterior
+            </button>
+            <button
+                class="btn btn-light"
+                @click="nextPage"
+                :disabled="currentPage * pageSize >= articlesToDisplay.length">
+                Siguiente &gt;
+            </button>
+        </div>
+    </div>
+</template>
+
 <script setup>
     import { ref, computed } from "vue";
-    import { articles } from "../data/articles.js";
+
+    const props = defineProps({
+        articlesToDisplay: {
+            type: Array,
+            required: true,
+        },
+    });
 
     const currentPage = ref(1);
     const pageSize = 5;
 
-    // Artículos a mostrar en la página actual
+    // ✅ Paginación ahora usa la prop `articlesToDisplay`
     const paginatedArticles = computed(() => {
         const startIndex = (currentPage.value - 1) * pageSize;
         const endIndex = startIndex + pageSize;
-        return articles.slice(startIndex, endIndex);
+        return props.articlesToDisplay.slice(startIndex, endIndex);
     });
 
+    const totalPages = computed(() => Math.ceil(props.articlesToDisplay.length / pageSize));
+
     const nextPage = () => {
-        if (currentPage.value * pageSize < articles.length) {
+        if (currentPage.value < totalPages.value) {
             currentPage.value++;
         }
     };
@@ -24,37 +62,6 @@
         }
     };
 </script>
-
-<template>
-    <div>
-        <div
-            v-for="article in paginatedArticles"
-            :key="article.id"
-            class="border-top kb-sidebar-padding">
-            <h4 class="kb-article-title">
-                <router-link
-                    :to="`/my-account/${article.id}`"
-                    class="text-decoration-none text-dark"
-                    >{{ article.title }}</router-link
-                >
-            </h4>
-            <p class="kb-article-excerpt">{{ article.excerpt }}</p>
-        </div>
-
-        <!-- Controles de paginación -->
-        <div class="d-flex justify-content-start mt-4">
-            <button class="btn btn-light me-2" @click="prevPage" :disabled="currentPage === 1">
-                &lt; Anterior
-            </button>
-            <button
-                class="btn btn-light"
-                @click="nextPage"
-                :disabled="currentPage * pageSize >= articles.length">
-                Siguiente &gt;
-            </button>
-        </div>
-    </div>
-</template>
 
 <!--
 Función: Muestra una lista de artículos con paginación.

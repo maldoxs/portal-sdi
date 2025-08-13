@@ -1,6 +1,5 @@
 <template>
     <div class="container my-5">
-        <!-- ✅ Breadcrumb dinámico -->
         <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><router-link to="/">Inicio</router-link></li>
@@ -14,13 +13,11 @@
         </nav>
 
         <div class="row">
-            <!-- Contenido del artículo -->
             <div class="col-lg-8">
                 <h2 class="mb-4">{{ article.title }}</h2>
                 <div class="article-content" v-html="article.content"></div>
             </div>
 
-            <!-- Menú lateral -->
             <div class="col-lg-4 d-none d-lg-block">
                 <div class="card p-4 mb-4 sticky-top" style="top: 20px">
                     <h5 class="card-title">Contenido</h5>
@@ -57,24 +54,15 @@
         return articles.find((a) => a.id === articleId) || {};
     });
 
-    /* slug/category y nombre visible para el breadcrumb */
-    const slugify = (s) =>
-        (s || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
-
-    const categorySlug = computed(() => slugify(article.value.category || "my-account"));
     const categoryDisplay = computed(() => {
-        const t = topics.find((x) => x.slug === categorySlug.value);
-        return t?.display || article.value.category || "Mi Cuenta";
+        const t = topics.find((x) => x.slug === article.value.category);
+        return t?.display || article.value.category;
     });
 
-    /* Extrae los títulos del contenido del artículo */
+    const categorySlug = computed(() => {
+        return article.value.category || "general";
+    });
+
     const extractHeadings = () => {
         const tempEl = document.createElement("div");
         tempEl.innerHTML = article.value.content;

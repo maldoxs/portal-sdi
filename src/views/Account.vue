@@ -1,10 +1,8 @@
 <template>
     <div class="container my-5">
-        <!-- Breadcrumb dinámico -->
         <Breadcrumbs :items="[{ text: current.display }]" />
 
         <div class="row">
-            <!-- Columna principal -->
             <div class="col-lg-8">
                 <div class="d-flex align-items-start mb-2">
                     <i :class="current.icon" class="me-3 kb-color" style="font-size: 32px"></i>
@@ -14,15 +12,16 @@
                     </div>
                 </div>
 
-                <div v-if="filteredCount > 0">
-                    <ArticleList :category-slug="categorySlug" />
+                <div v-if="filteredArticles.length > 0">
+                    <ArticleList
+                        :articles-to-display="filteredArticles"
+                        :category-slug="categorySlug" />
                 </div>
                 <div v-else class="alert alert-secondary">
                     No hay artículos en esta categoría por ahora.
                 </div>
             </div>
 
-            <!-- Sidebar categorías -->
             <div class="col-lg-4 d-none d-lg-block">
                 <div class="card p-4 sticky-top fondo" style="top: 20px">
                     <h5 class="mb-3 kb-article-title">Categorías de la base de conocimientos</h5>
@@ -30,84 +29,55 @@
                         <li v-for="c in categories" :key="c.slug" class="mb-2 kb-article-excerpt">
                             <RouterLink
                                 :to="{ name: 'Category', params: { categorySlug: c.slug } }"
-                                class="sidebar-link d-flex justify-content-between"
-                                :class="{ active: c.slug === categorySlug }">
+                                class="d-flex justify-content-between text-decoration-none"
+                                :class="{ 'fw-semibold': c.slug === categorySlug }">
                                 <span>{{ c.display }}</span>
-                                <span
-                                    class="text-muted"
-                                    :class="{ active: c.slug === categorySlug }"
-                                    >({{ c.count }})</span
-                                >
+                                <span class="text-muted">({{ c.count }})</span>
                             </RouterLink>
                         </li>
                     </ul>
                 </div>
-                <!-- <div class="card p-4 mt-3"><NeedSupport /></div> -->
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-    import ArticleList from "../components/ArticleList.vue";
-    import Breadcrumbs from "../components/Breadcrumbs.vue";
-    // import NeedSupport from "../components/NeedSupport.vue";
-
     import { computed } from "vue";
     import { useRoute } from "vue-router";
-
-    /* Ajusta estas rutas si tu estructura es distinta */
     import { topics } from "../data/topics.js";
     import { articles } from "../data/articles.js";
+    import Breadcrumbs from "../components/Breadcrumbs.vue";
+    import ArticleList from "../components/ArticleList.vue";
 
     const route = useRoute();
 
-    /* slugify */
-    const slugify = (s) =>
-        (s || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-") || "general";
-
-    /* slug actual */
     const categorySlug = computed(() => String(route.params.categorySlug || "my-account"));
 
-    /* Meta de la categoría actual */
-    const current = computed(
-        () =>
-            topics.find((t) => t.slug === categorySlug.value) || {
-                display: "Mi Cuenta",
-                description: "Cómo administrar tu cuenta y sus funciones.",
-                icon: "bi bi-person-gear",
-            }
-    );
+    const current = computed(() => topics.find((t) => t.slug === categorySlug.value) || topics[0]);
 
-    /* Conteos por categoría */
+    // Lógica de conteo para el sidebar, se basa en el slug.
     const countsBySlug = computed(() =>
-        articles.reduce((acc, a) => {
-            const s = slugify(a.category);
-            acc[s] = (acc[s] || 0) + 1;
+        articles.reduce((acc, article) => {
+            acc[article.category] = (acc[article.category] || 0) + 1;
             return acc;
         }, {})
     );
 
-    /* Validación */
-    const filteredCount = computed(() => countsBySlug.value[categorySlug.value] || 0);
-
-    /* Sidebar: mismas categorías que Home */
     const categories = computed(() =>
         [...topics]
             .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
             .map((t) => ({
-                slug: t.slug,
-                display: t.display,
+                ...t,
                 count: countsBySlug.value[t.slug] || 0,
             }))
     );
+
+    // El filtro de artículos se basa en el slug de la URL.
+    const filteredArticles = computed(() => {
+        const targetSlug = categorySlug.value;
+        return articles.filter((a) => a.category === targetSlug);
+    });
 </script>
 
 <style scoped>

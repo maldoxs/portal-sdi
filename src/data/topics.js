@@ -3,7 +3,7 @@ export const topics = [
     {
         slug: "my-account",
         title: "Mi Cuenta",
-        display: "Configuraciones de la cuenta",
+        display: "Mi Cuenta",
         description:
             "Artículos sobre cómo administrar su cuenta, incluido cómo cambiar su correo electrónico o contraseña.",
         icon: "bi bi-person-gear",
@@ -46,18 +46,16 @@ export const topics = [
         title: "Desarrolladores",
         display: "Desarrolladores",
         description: "Documentación e integración para desarrolladores.",
-        icon: "bi bi-code-square",
+        icon: "bi bi-code-slash",
         order: 6,
     },
 ];
-
 /*
 
 Función: Almacena los datos de las categorías de la base de conocimientos.
 
 Lógica: Exporta un array de objetos, donde cada uno contiene la información de una categoría (slug, display, description, icon, order).
 Dependencias: Ninguna.
-
 Observaciones: Proporciona la estructura y el contenido para los temas de ayuda y la navegación.
 
  */
