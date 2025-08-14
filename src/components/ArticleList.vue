@@ -6,22 +6,22 @@
             class="border-top kb-sidebar-padding">
             <h4 class="kb-article-title">
                 <router-link
-                    :to="{ name: 'Article', params: { articleId: article.id } }"
+                    :to="{
+                        name: 'Article',
+                        params: { categorySlug: categorySlug, articleId: article.id },
+                    }"
                     class="text-decoration-none text-dark"
                     >{{ article.title }}</router-link
                 >
             </h4>
-            <p class="kb-article-excerpt">{{ article.excerpt }}</p>
+            <p class="kb-article-excerpt line-height-compact">{{ article.excerpt }}</p>
         </div>
 
-        <div class="d-flex justify-content-start mt-4" v-if="totalPages > 1">
+        <div v-if="totalPages > 1" class="d-flex justify-content-start mt-4">
             <button class="btn btn-light me-2" @click="prevPage" :disabled="currentPage === 1">
                 &lt; Anterior
             </button>
-            <button
-                class="btn btn-light"
-                @click="nextPage"
-                :disabled="currentPage * pageSize >= articlesToDisplay.length">
+            <button class="btn btn-light" @click="nextPage" :disabled="currentPage === totalPages">
                 Siguiente &gt;
             </button>
         </div>
@@ -36,19 +36,22 @@
             type: Array,
             required: true,
         },
+        categorySlug: {
+            type: String,
+            required: true,
+        },
     });
 
     const currentPage = ref(1);
     const pageSize = 5;
 
-    // ✅ Paginación ahora usa la prop `articlesToDisplay`
+    const totalPages = computed(() => Math.ceil(props.articlesToDisplay.length / pageSize));
+
     const paginatedArticles = computed(() => {
         const startIndex = (currentPage.value - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         return props.articlesToDisplay.slice(startIndex, endIndex);
     });
-
-    const totalPages = computed(() => Math.ceil(props.articlesToDisplay.length / pageSize));
 
     const nextPage = () => {
         if (currentPage.value < totalPages.value) {
@@ -62,6 +65,15 @@
         }
     };
 </script>
+
+<style scoped>
+    .kb-article-title {
+        line-height: 1.2;
+    }
+    .kb-article-excerpt {
+        line-height: 1.4;
+    }
+</style>
 
 <!--
 Función: Muestra una lista de artículos con paginación.

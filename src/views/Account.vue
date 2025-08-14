@@ -12,7 +12,7 @@
                     </div>
                 </div>
 
-                <div v-if="filteredArticles.length > 0">
+                <div v-if="filteredCount > 0">
                     <ArticleList
                         :articles-to-display="filteredArticles"
                         :category-slug="categorySlug" />
@@ -29,10 +29,14 @@
                         <li v-for="c in categories" :key="c.slug" class="mb-2 kb-article-excerpt">
                             <RouterLink
                                 :to="{ name: 'Category', params: { categorySlug: c.slug } }"
-                                class="d-flex justify-content-between text-decoration-none p-2 rounded-2"
-                                :class="{ 'active-category': c.slug === categorySlug }">
+                                class="sidebar-link d-flex justify-content-between"
+                                :class="{ active: c.slug === categorySlug }">
                                 <span>{{ c.display }}</span>
-                                <span class="text-muted">({{ c.count }})</span>
+                                <span
+                                    class="text-muted"
+                                    :class="{ active: c.slug === categorySlug }"
+                                    >({{ c.count }})</span
+                                >
                             </RouterLink>
                         </li>
                     </ul>
@@ -76,28 +80,40 @@
         const targetSlug = categorySlug.value;
         return articles.filter((a) => a.category === targetSlug);
     });
+
+    const filteredCount = computed(() => filteredArticles.value.length);
 </script>
 
 <style scoped>
-    /* Estilos del sidebar de categorías */
+    /* Fondo suave del recuadro */
     .fondo {
         background-color: #f4f5f5;
     }
 
-    /* Estilo para el enlace activo */
-    .active-category {
-        /* background-color: #0064a0;  Color de fondo azul  */
-        color: #0064a0 !important; /* Color del texto blanco */
-        font-weight: bold;
+    /* Enlaces del sidebar */
+    .sidebar-link {
+        color: #374151;
+        text-decoration: none;
+        padding: 6px 8px;
+        border-radius: 4px;
+    }
+    .sidebar-link:hover {
+        color: #0064a0;
     }
 
-    /* Estilos para los enlaces normales */
-    .text-dark {
-        color: #374151 !important;
+    /* Activo (sin !important) */
+    .card .sidebar-link.active {
+        color: #0064a0;
+        font-weight: 500;
     }
-
-    .text-dark:hover {
+    /* NUEVA REGLA: Activa el span con el conteo cuando el link está activo */
+    .card .sidebar-link.active .text-muted {
         color: #0064a0 !important;
+    }
+
+    .sidebar-link,
+    .card .sidebar-link.active {
+        transition: color 0.12s ease, background-color 0.12s ease;
     }
 </style>
 
