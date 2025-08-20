@@ -3,17 +3,18 @@ export const topics = [
     {
         slug: "my-account",
         title: "Mi Cuenta",
-        display: "Mi Cuenta",
+        display: "Grupo Empresariales",
         description:
-            "Artículos sobre cómo administrar su cuenta, incluido cómo cambiar su correo electrónico o contraseña.",
-        icon: "bi bi-person-gear",
+            "Un grupo empresarial es un conjunto de empresas que están vinculadas entre sí mediante relaciones de propiedad, control o gestión común.",
+        icon: "bi bi-share",
         order: 1,
     },
     {
-        slug: "getting-started",
+        slug: "taf-resoluciones",
         title: "Primeros pasos",
-        display: "Empezando",
-        description: "Artículos para comenzar rápido y sin complicaciones.",
+        display: "Taf-Resoluciones",
+        description:
+            "Se conecta con SGF y otros sistemas (como SIAG y E-Folder) para centralizar, consultar y dar seguimiento a las resoluciones administrativas dentro del proceso de fiscalización.",
         icon: "bi bi-rocket",
         order: 2,
     },

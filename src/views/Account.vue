@@ -1,4 +1,47 @@
+<script setup>
+    import { computed } from "vue";
+    import { useRoute } from "vue-router";
+    import ArticleList from "../components/ArticleList.vue";
+    import Breadcrumbs from "../components/Breadcrumbs.vue";
+    import HeroSection from "../components/HeroSection.vue"; //Nuevo componente
+    import { topics } from "../data/topics.js";
+    import { articles } from "../data/articles.js";
+
+    const route = useRoute();
+
+    const categorySlug = computed(() => String(route.params.categorySlug || "my-account"));
+
+    const current = computed(() => topics.find((t) => t.slug === categorySlug.value) || topics[0]);
+
+    const countsBySlug = computed(() =>
+        articles.reduce((acc, article) => {
+            acc[article.category] = (acc[article.category] || 0) + 1;
+            return acc;
+        }, {})
+    );
+
+    const categories = computed(() =>
+        [...topics]
+            .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
+            .map((t) => ({
+                ...t,
+                count: countsBySlug.value[t.slug] || 0,
+            }))
+    );
+
+    const filteredArticles = computed(() => {
+        const targetSlug = categorySlug.value;
+        return articles.filter((a) => a.category === targetSlug);
+    });
+
+    const filteredCount = computed(() => filteredArticles.value.length);
+</script>
 <template>
+    <div class="container-fluid color">
+        <div class="col-lg-12 d-flex justify-content-center">
+            <HeroSection />
+        </div>
+    </div>
     <div class="container my-5">
         <Breadcrumbs :items="[{ text: current.display }]" />
 
@@ -45,44 +88,6 @@
         </div>
     </div>
 </template>
-
-<script setup>
-    import { computed } from "vue";
-    import { useRoute } from "vue-router";
-    import { topics } from "../data/topics.js";
-    import { articles } from "../data/articles.js";
-    import Breadcrumbs from "../components/Breadcrumbs.vue";
-    import ArticleList from "../components/ArticleList.vue";
-
-    const route = useRoute();
-
-    const categorySlug = computed(() => String(route.params.categorySlug || "my-account"));
-
-    const current = computed(() => topics.find((t) => t.slug === categorySlug.value) || topics[0]);
-
-    const countsBySlug = computed(() =>
-        articles.reduce((acc, article) => {
-            acc[article.category] = (acc[article.category] || 0) + 1;
-            return acc;
-        }, {})
-    );
-
-    const categories = computed(() =>
-        [...topics]
-            .sort((a, b) => (a.order ?? 999) - (b.order ?? 999))
-            .map((t) => ({
-                ...t,
-                count: countsBySlug.value[t.slug] || 0,
-            }))
-    );
-
-    const filteredArticles = computed(() => {
-        const targetSlug = categorySlug.value;
-        return articles.filter((a) => a.category === targetSlug);
-    });
-
-    const filteredCount = computed(() => filteredArticles.value.length);
-</script>
 
 <style scoped>
     /* Fondo suave del recuadro */

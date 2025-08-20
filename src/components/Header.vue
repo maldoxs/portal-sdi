@@ -1,12 +1,19 @@
 <template>
     <header class="border-bottom">
         <div class="container d-flex align-items-center justify-content-between py-3">
-            <router-link to="/" class="text-decoration-none fw-bold kb-link"
-                >Departamento Sistemas de Impuestos Directos e Indirectos Ayuda</router-link
-            >
+            <router-link to="/" class="text-decoration-none fw-bold kb-link">
+                <img
+                    src="../assets/logo_sii.png"
+                    alt="Logo SII"
+                    style="height: 40px; margin-right: 10px"
+            /></router-link>
 
-            <nav class="d-none d-md-flex gap-3">
-                <router-link to="/" class="text-decoration-none fw-bold kb-link"
+            <nav class="d-none d-md-flex gap-3 mt-4">
+                <p class="text-decoration-none fw-bold kb-link">
+                    <i class="bi bi-building me-1 fs-4"></i> Departamento Sistemas de Impuestos
+                    Directos e Indirectos
+                </p>
+                <!-- <router-link to="/" class="text-decoration-none fw-bold kb-link"
                     >Inicio</router-link
                 >
                 <router-link :to="{ name: 'Account' }" class="text-decoration-none fw-bold kb-link"
@@ -21,7 +28,7 @@
                     :to="{ name: 'Category', params: { categorySlug: 'developers' } }"
                     class="text-decoration-none fw-bold kb-link"
                     >Desarrolladores</router-link
-                >
+                > -->
             </nav>
         </div>
     </header>

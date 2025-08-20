@@ -1,13 +1,14 @@
 <script setup>
-    import { ref } from "vue";
+    import { ref, watch } from "vue";
     import { useRouter } from "vue-router";
     import { articles } from "../data/articles.js";
     import { topics } from "../data/topics.js";
-    import { STOPWORDS_ES } from "../utils/stopwords-es.js"; // ← aquí
+    import { STOPWORDS_ES } from "../utils/stopwords-es.js";
 
     const searchText = ref("");
     const filteredResults = ref([]);
     const router = useRouter();
+    const isLoading = ref(false);
 
     /* ===== Normalización y utilidades ===== */
     const norm = (s = "") =>
@@ -42,7 +43,6 @@
             const p = hayNorm.indexOf(tk, pos);
             if (p === -1) return null;
             if (start === -1) start = p;
-            // si el hueco entre tokens es excesivo, aborta (evita matches muy lejanos)
             if (pos && p - pos > maxGap) return null;
             pos = p + tk.length;
             end = pos;
@@ -67,11 +67,9 @@
     /* Resalta tokens significativos respetando límites de palabra */
     function highlight(text, tokens) {
         if (!tokens.length) return escapeHtml(text);
-        // ordena tokens por longitud desc para evitar solapamientos
         const ts = [...tokens].sort((a, b) => b.length - a.length);
-        // construye regex acento-insensible aproximando por normalización previa
         let out = "";
-        const parts = text.split(/(\s+)/); // conserva espacios
+        const parts = text.split(/(\s+)/);
         for (let i = 0; i < parts.length; i++) {
             const chunk = parts[i];
             if (/^\s+$/.test(chunk)) {
@@ -80,7 +78,6 @@
             }
             const n = norm(chunk);
             const hit = ts.find((tk) => {
-                // match de palabra: inicio/fin o separadores no alfanum
                 const idx = n.indexOf(tk);
                 if (idx === -1) return false;
                 const prev = idx === 0 ? "" : n[idx - 1];
@@ -104,12 +101,15 @@
         );
     };
 
-    /* ===== Búsqueda con prioridad de frase ===== */
-    const handleInput = () => {
+    const handleInput = async () => {
+        isLoading.value = true;
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
         const raw = String(searchText.value || "").trim();
         const qNorm = norm(raw);
         if (!qNorm) {
             filteredResults.value = [];
+            isLoading.value = false;
             return;
         }
 
@@ -117,7 +117,6 @@
         const hasMeaningful = tokens.length > 0;
 
         const results = [];
-
         for (const a of articles) {
             const topic = findTopicForArticle(a);
             const title = a.title || "";
@@ -134,30 +133,25 @@
             ];
 
             let best = null;
-
             for (const f of fields) {
                 const text = f.text || "";
                 if (!text) continue;
 
                 const textNorm = norm(text);
-
-                // 1) Frase exacta (norm) completa
                 let score = 0;
                 let where = f.key;
                 let start = textNorm.indexOf(qNorm);
                 if (start !== -1) {
                     const end = start + qNorm.length;
-                    score = 100 * f.weight; // máxima prioridad
+                    score = 100 * f.weight;
                     const window = makeWindow(text, start, end);
                     best = { score, where, snippet: window, source: f.key };
-                    break; // ya no necesitamos buscar en otros campos
+                    break;
                 }
 
-                // 2) Frase flexible: tokens significativos en orden y proximidad
                 if (hasMeaningful) {
                     const hit = findFlexiblePhrase(textNorm, tokens, 60);
                     if (hit) {
-                        // distancia corta => más puntos
                         const span = hit.end - hit.start;
                         score = 80 * f.weight + Math.max(0, 40 - span / 5);
                         const window = makeWindow(text, hit.start, hit.end);
@@ -168,7 +162,6 @@
                     }
                 }
 
-                // 3) Coincidencia por tokens (≥2 significativos para aceptar)
                 if (hasMeaningful) {
                     let tokenScore = 0,
                         matches = 0;
@@ -180,7 +173,6 @@
                     }
                     if (matches >= 2) {
                         score = 20 * f.weight + tokenScore;
-                        // arma ventana alrededor del primer token
                         const firstPos = tokens
                             .map((tk) => textNorm.indexOf(tk))
                             .filter((p) => p !== -1)
@@ -208,11 +200,24 @@
 
         results.sort((a, b) => b.score - a.score);
         filteredResults.value = results.slice(0, 12);
+
+        // Retraso de 500ms para el loader
+        setTimeout(() => {
+            isLoading.value = false;
+        }, 500);
     };
 
     const clearSearch = () => {
         searchText.value = "";
     };
+
+    watch(searchText, (newVal) => {
+        if (newVal.length > 0) {
+            handleInput();
+        } else {
+            filteredResults.value = [];
+        }
+    });
 </script>
 
 <template>
@@ -220,39 +225,47 @@
         class="hero-section p-5 d-flex flex-column align-items-center justify-content-center position-relative color">
         <h1 class="kb-category-title-buscador text-white">¿Cómo puedo ayudarte?</h1>
 
-        <!-- Buscador estilo pill con ícono -->
         <form class="kb-search mt-4" role="search" @submit.prevent>
-            <i class="bi bi-search kb-search-icon" aria-hidden="true"></i>
+            <i v-if="!searchText" class="bi bi-search kb-search-icon" aria-hidden="true"></i>
+
             <input
                 type="search"
                 class="form-control kb-search-input"
                 v-model="searchText"
                 placeholder="Buscar en la base de conocimientos..."
-                aria-label="Buscar en la base de conocimientos"
-                @input="handleInput" />
+                aria-label="Buscar en la base de conocimientos" />
+
+            <button
+                v-if="searchText"
+                type="button"
+                class="kb-clear-btn"
+                @click="clearSearch"
+                aria-label="Borrar búsqueda">
+                <i class="bi bi-x"></i>
+            </button>
+            <div v-if="isLoading" class="kb-loader"></div>
         </form>
 
-        <!-- Resultados (dropdown) -->
-
-        <div
-            v-if="searchText.length > 0 && filteredResults.length > 0"
-            class="kb-search-results"
-            role="listbox">
-            <router-link
-                v-for="r in filteredResults"
-                :key="r.id"
-                :to="r.to"
-                class="dropdown-item d-flex align-items-start p-3 text-start text-decoration-none text-dark"
-                role="option"
-                @click="clearSearch">
-                <i class="bi bi-file-earmark-text text-muted me-3 mt-1"></i>
-                <div>
-                    <strong class="d-block">{{ r.title }}</strong>
-                    <small class="text-muted d-block mb-1">{{ r.whereLabel }}</small>
-                    <!-- Snippet con <mark> -->
-                    <p class="text-muted mb-0" v-html="r.snippetHtml"></p>
-                </div>
-            </router-link>
+        <div v-if="searchText.length > 0 && !isLoading" class="kb-search-results" role="listbox">
+            <template v-if="filteredResults.length > 0">
+                <router-link
+                    v-for="r in filteredResults"
+                    :key="r.id"
+                    :to="r.to"
+                    class="dropdown-item d-flex align-items-start p-3 text-start text-decoration-none text-dark"
+                    role="option"
+                    @click="clearSearch">
+                    <i class="bi bi-file-earmark-text text-muted me-3 mt-1"></i>
+                    <div>
+                        <strong class="d-block">{{ r.title }}</strong>
+                        <small class="text-muted d-block mb-1">{{ r.whereLabel }}</small>
+                        <p class="text-muted mb-0" v-html="r.snippetHtml"></p>
+                    </div>
+                </router-link>
+            </template>
+            <div v-else class="p-4 text-center text-muted">
+                <p class="mb-0">No hay resultados para "{{ searchText }}"</p>
+            </div>
         </div>
     </div>
 </template>
@@ -260,36 +273,45 @@
 <style scoped lang="scss">
     @use "../styles/variables" as *;
 
-    /* Título del hero (mantiene tu fuente y color) */
+    .color {
+        background-color: #0064a0;
+    }
+
     .hero-section h1 {
         font-family: $font-family-body;
         font-weight: 400;
-        color: $text-title;
+        color: white;
+    }
+
+    /* Oculta el botón de limpiar de los navegadores basados en Webkit */
+    .kb-search-input::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
     }
 
     /* ====== Estilo del buscador tipo pill ====== */
     .kb-search {
         position: relative;
-        width: min(860px, 92vw); // ancho similar al mock
+        width: min(860px, 92vw);
     }
 
     .kb-search-input {
         height: 56px;
         border-radius: 9999px;
-        border: none; // sin borde bootstrap
-        padding-left: 56px; // espacio para el ícono
+        border: none;
+        padding-left: 56px;
+        padding-right: 90px;
         font-size: 16px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     .kb-search-input::placeholder {
-        color: #9aa3af; // gris placeholder
+        color: #9aa3af;
     }
 
     .kb-search-input:focus {
         outline: none;
         border: none;
-        // halo suave sobre el fondo azul
         box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 0 0 5px rgba(36, 78, 141, 0.35);
     }
 
@@ -303,35 +325,62 @@
         pointer-events: none;
     }
 
+    .kb-loader {
+        position: absolute;
+        right: 45px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 25px;
+        height: 25px;
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-top-color: $primary-blue;
+        border-radius: 50%;
+        animation: spin 1.2s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: translateY(-50%) rotate(360deg);
+        }
+    }
+
+    .kb-clear-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        color: #9aa3af;
+        font-size: 20px;
+    }
+
     /* ====== Dropdown de resultados ====== */
     .kb-search-results {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
-        width: min(860px, 92vw); // mismo ancho del input
-        top: calc(100% + 8px); // debajo del input
+        width: min(860px, 92vw);
+        top: calc(100% + 8px);
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
-        overflow: auto; // scroll si hay muchos resultados
-        max-height: 360px; // límite de alto
+        overflow: auto;
+        max-height: 360px;
         box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
         z-index: 100;
     }
 
-    /* Separadores suaves entre resultados */
     .kb-search-results .dropdown-item + .dropdown-item {
         border-top: 1px solid #f0f2f5;
     }
 
     .dropdown-item:hover,
     .dropdown-item:focus {
-        background-color: $gray-lighter;
-    }
-
-    /* Asegura contexto posicionado */
-    .position-relative {
-        position: relative;
+        background-color: #f4f5f5;
     }
 </style>
 
