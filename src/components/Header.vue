@@ -1,6 +1,6 @@
 <template>
     <header class="border-bottom">
-        <div class="container d-flex align-items-center justify-content-between py-3">
+        <div class="container d-flex align-items-center justify-content-between">
             <router-link to="/" class="text-decoration-none fw-bold kb-link">
                 <img
                     src="../assets/logo_sii.png"

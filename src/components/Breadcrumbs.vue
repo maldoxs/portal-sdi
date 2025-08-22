@@ -1,84 +1,71 @@
 <script setup>
-    import { computed } from "vue";
+    import { defineProps, computed } from "vue";
     import { useRoute } from "vue-router";
-    import { topics } from "../data/topics.js";
 
     const props = defineProps({
-        // Si una vista te pasa su propio trail, lo usamos tal cual.
-        items: { type: Array, default: null },
+        /** "default" | "inverted" (blanco) */
+        variant: { type: String, default: "default" },
     });
 
     const route = useRoute();
 
-    const slugify = (s) =>
-        (s || "")
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, "")
-            .trim()
-            .replace(/\s+/g, "-")
-            .replace(/-+/g, "-");
+    const rootClass = computed(() => [
+        "breadcrumbs",
+        props.variant === "inverted" ? "breadcrumbs--inverted" : null,
+    ]);
 
-    /* Detecta la categoría actual para rutas de categoría o /my-account */
-    const categorySlug = computed(() => {
-        if (route.params?.categorySlug) return String(route.params.categorySlug);
-        // Soporte para la ruta /my-account sin params
-        if (route.name === "Account") return "my-account";
-        // En otras rutas (Home, etc.) no añadimos segundo breadcrumb
-        return "";
-    });
-
-    const categoryDisplay = computed(() => {
-        if (!categorySlug.value) return null;
-        const t = topics.find((x) => x.slug === categorySlug.value);
-        // Si no encuentra la meta, no ponemos texto (evita "My Account" por defecto)
-        return t?.display ?? null;
-    });
-
-    /* Trail final:
-   - Si se pasó props.items, lo usamos tal cual.
-   - Si estamos en categoría, mostramos esa categoría en español con enlace.
-   - Si no, solo “Inicio”. */
-    const trail = computed(() => {
-        if (props.items && props.items.length) return props.items;
-
-        if (categoryDisplay.value) {
-            return [
-                {
-                    text: categoryDisplay.value,
-                    to: { name: "Category", params: { categorySlug: categorySlug.value } },
-                },
-            ];
+    // Si ya tienes tu propia generación de items, conserva la tuya.
+    // Aquí va un ejemplo sencillo:
+    const items = computed(() => {
+        const arr = [{ label: "Inicio", to: "/" }];
+        if (route.name === "Category" || route.name === "Account") {
+            // Título genérico; si necesitas el display exacto, pásalo por prop.
+            arr.push({ label: "Grupo Empresariales", to: null });
         }
-
-        return []; // Solo mostrará "Inicio"
+        return arr;
     });
 </script>
 
 <template>
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <router-link to="/">Inicio</router-link>
-            </li>
-
+    <nav :class="rootClass" aria-label="breadcrumb">
+        <ol class="breadcrumb m-0">
             <li
-                v-for="(i, idx) in trail"
-                :key="idx"
+                v-for="(it, i) in items"
+                :key="i"
                 class="breadcrumb-item"
-                :class="{ active: !i.to }"
-                :aria-current="!i.to ? 'page' : null">
-                <template v-if="i.to">
-                    <router-link :to="i.to">{{ i.text }}</router-link>
-                </template>
-                <template v-else>
-                    {{ i.text }}
-                </template>
+                :class="{ active: !it.to }"
+                :aria-current="!it.to ? 'page' : null">
+                <router-link v-if="it.to" :to="it.to">{{ it.label }}</router-link>
+                <span v-else>{{ it.label }}</span>
             </li>
         </ol>
     </nav>
 </template>
+
+<style scoped>
+    /* Variante invertida (blanco) solo cuando lo pidas */
+    .breadcrumbs--inverted,
+    .breadcrumbs--inverted a {
+        color: #fff !important;
+    }
+
+    /* separador */
+    .breadcrumbs--inverted .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
+    /* Asegura blanco también en el item activo */
+    .breadcrumbs--inverted .breadcrumb-item.active,
+    .breadcrumbs--inverted .breadcrumb-item.active > span {
+        color: #fff !important;
+    }
+
+    /* Reseteo suave */
+    .breadcrumb {
+        background: transparent;
+        margin: 0;
+    }
+</style>
 
 <!--
 Función: Crea un componente de "migas de pan" o ruta de navegación.

@@ -1,16 +1,22 @@
 <script setup>
-    import { ref, watch } from "vue";
+    import { ref, watch, defineProps } from "vue";
     import { useRouter } from "vue-router";
     import { articles } from "../data/articles.js";
     import { topics } from "../data/topics.js";
     import { STOPWORDS_ES } from "../utils/stopwords-es.js";
+
+    const props = defineProps({
+        showTitle: { type: Boolean, default: true },
+        /** 'center' (comportamiento original) | 'input' (adjuntar al buscador) */
+        attachResultsTo: { type: String, default: "center" },
+    });
 
     const searchText = ref("");
     const filteredResults = ref([]);
     const router = useRouter();
     const isLoading = ref(false);
 
-    /* ===== Normalización y utilidades ===== */
+    /* ===== Utilidades ===== */
     const norm = (s = "") =>
         String(s || "")
             .normalize("NFD")
@@ -26,14 +32,12 @@
             .replace(/\s+/g, " ")
             .trim();
 
-    /* Stopwords ES y filtro de tokens “significativos” */
     const meaningfulTokens = (qNorm) =>
         qNorm
             .split(/\s+/)
             .map((t) => t.trim())
             .filter((t) => t && !STOPWORDS_ES.has(t) && t.length >= 3);
 
-    /* Busca los tokens en orden, permitiendo palabras intermedias (proximidad) */
     function findFlexiblePhrase(hayNorm, tokens, maxGap = 60) {
         if (!tokens.length) return null;
         let pos = 0,
@@ -50,7 +54,6 @@
         return { start, end };
     }
 
-    /* Ventana para snippet y resaltado con límites de palabra */
     function makeWindow(text, start, end, pad = 120) {
         const s = Math.max(0, start - Math.floor(pad / 2));
         const e = Math.min(text.length, end + Math.floor(pad / 2));
@@ -64,7 +67,6 @@
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
-    /* Resalta tokens significativos respetando límites de palabra */
     function highlight(text, tokens) {
         if (!tokens.length) return escapeHtml(text);
         const ts = [...tokens].sort((a, b) => b.length - a.length);
@@ -91,7 +93,6 @@
         return out;
     }
 
-    /* Localiza topic para un artículo */
     const findTopicForArticle = (a) => {
         const cat = norm(a.category || "");
         return (
@@ -103,8 +104,7 @@
 
     const handleInput = async () => {
         isLoading.value = true;
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
+        await new Promise((r) => setTimeout(r, 300));
         const raw = String(searchText.value || "").trim();
         const qNorm = norm(raw);
         if (!qNorm) {
@@ -136,10 +136,9 @@
             for (const f of fields) {
                 const text = f.text || "";
                 if (!text) continue;
-
                 const textNorm = norm(text);
-                let score = 0;
-                let where = f.key;
+                let score = 0,
+                    where = f.key;
                 let start = textNorm.indexOf(qNorm);
                 if (start !== -1) {
                     const end = start + qNorm.length;
@@ -148,20 +147,17 @@
                     best = { score, where, snippet: window, source: f.key };
                     break;
                 }
-
                 if (hasMeaningful) {
                     const hit = findFlexiblePhrase(textNorm, tokens, 60);
                     if (hit) {
                         const span = hit.end - hit.start;
                         score = 80 * f.weight + Math.max(0, 40 - span / 5);
                         const window = makeWindow(text, hit.start, hit.end);
-                        if (!best || score > best.score) {
+                        if (!best || score > best.score)
                             best = { score, where, snippet: window, source: f.key };
-                        }
                         continue;
                     }
                 }
-
                 if (hasMeaningful) {
                     let tokenScore = 0,
                         matches = 0;
@@ -178,13 +174,11 @@
                             .filter((p) => p !== -1)
                             .sort((a, b) => a - b)[0];
                         const window = makeWindow(text, firstPos, firstPos + tokens[0].length);
-                        if (!best || score > best.score) {
+                        if (!best || score > best.score)
                             best = { score, where, snippet: window, source: f.key };
-                        }
                     }
                 }
             }
-
             if (best) {
                 const snippetHtml = highlight(best.snippet, tokens);
                 results.push({
@@ -197,11 +191,8 @@
                 });
             }
         }
-
         results.sort((a, b) => b.score - a.score);
         filteredResults.value = results.slice(0, 12);
-
-        // Retraso de 500ms para el loader
         setTimeout(() => {
             isLoading.value = false;
         }, 500);
@@ -211,90 +202,102 @@
         searchText.value = "";
     };
 
-    watch(searchText, (newVal) => {
-        if (newVal.length > 0) {
-            handleInput();
-        } else {
-            filteredResults.value = [];
-        }
+    watch(searchText, (v) => {
+        if (v.length > 0) handleInput();
+        else filteredResults.value = [];
     });
 </script>
 
 <template>
     <div
         class="hero-section p-5 d-flex flex-column align-items-center justify-content-center position-relative color">
-        <h1 class="kb-category-title-buscador text-white">¿Cómo puedo ayudarte?</h1>
+        <h1 v-if="showTitle" class="kb-category-title-buscador text-white">
+            ¿Cómo puedo ayudarte?
+        </h1>
 
-        <form class="kb-search mt-4" role="search" @submit.prevent>
-            <i v-if="!searchText" class="bi bi-search kb-search-icon" aria-hidden="true"></i>
+        <div class="kb-hero-bar">
+            <slot name="presearch" />
 
-            <input
-                type="search"
-                class="form-control kb-search-input"
-                v-model="searchText"
-                placeholder="Buscar en la base de conocimientos..."
-                aria-label="Buscar en la base de conocimientos" />
+            <form class="kb-search" role="search" @submit.prevent>
+                <i v-if="!searchText" class="bi bi-search kb-search-icon" aria-hidden="true"></i>
+                <input
+                    type="text"
+                    class="form-control kb-search-input"
+                    v-model="searchText"
+                    placeholder="Buscar en la base de conocimientos..."
+                    aria-label="Buscar en la base de conocimientos" />
+                <button
+                    v-if="searchText"
+                    type="button"
+                    class="kb-clear-btn"
+                    @click="clearSearch"
+                    aria-label="Borrar búsqueda">
+                    <i class="bi bi-x"></i>
+                </button>
+                <div v-if="isLoading" class="kb-loader"></div>
 
-            <button
-                v-if="searchText"
-                type="button"
-                class="kb-clear-btn"
-                @click="clearSearch"
-                aria-label="Borrar búsqueda">
-                <i class="bi bi-x"></i>
-            </button>
-            <div v-if="isLoading" class="kb-loader"></div>
-        </form>
-
-        <div v-if="searchText.length > 0 && !isLoading" class="kb-search-results" role="listbox">
-            <template v-if="filteredResults.length > 0">
-                <router-link
-                    v-for="r in filteredResults"
-                    :key="r.id"
-                    :to="r.to"
-                    class="dropdown-item d-flex align-items-start p-3 text-start text-decoration-none text-dark"
-                    role="option"
-                    @click="clearSearch">
-                    <i class="bi bi-file-earmark-text text-muted me-3 mt-1"></i>
-                    <div>
-                        <strong class="d-block">{{ r.title }}</strong>
-                        <small class="text-muted d-block mb-1">{{ r.whereLabel }}</small>
-                        <p class="text-muted mb-0" v-html="r.snippetHtml"></p>
+                <!-- ✅ ÚNICO dropdown (dentro del form) -->
+                <div
+                    v-if="searchText.length > 0 && !isLoading"
+                    :class="[
+                        'kb-search-results',
+                        attachResultsTo === 'input'
+                            ? 'kb-search-results--attached'
+                            : 'kb-search-results--centered',
+                    ]"
+                    role="listbox">
+                    <template v-if="filteredResults.length > 0">
+                        <router-link
+                            v-for="r in filteredResults"
+                            :key="r.id"
+                            :to="r.to"
+                            class="dropdown-item d-flex align-items-start p-3 text-start text-decoration-none text-dark"
+                            role="option"
+                            @click="clearSearch">
+                            <i class="bi bi-file-earmark-text text-muted me-3 mt-1"></i>
+                            <div>
+                                <strong class="d-block">{{ r.title }}</strong>
+                                <small class="text-muted d-block mb-1">{{ r.whereLabel }}</small>
+                                <p class="text-muted mb-0" v-html="r.snippetHtml"></p>
+                            </div>
+                        </router-link>
+                    </template>
+                    <div v-else class="p-4 text-center text-muted">
+                        <p class="mb-0">No hay resultados para "{{ searchText }}"</p>
                     </div>
-                </router-link>
-            </template>
-            <div v-else class="p-4 text-center text-muted">
-                <p class="mb-0">No hay resultados para "{{ searchText }}"</p>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
     @use "../styles/variables" as *;
+    @use "../styles/mixins" as *; // ajusta la ruta
 
     .color {
         background-color: #0064a0;
     }
-
     .hero-section h1 {
         font-family: $font-family-body;
         font-weight: 400;
         color: white;
     }
 
-    /* Oculta el botón de limpiar de los navegadores basados en Webkit */
-    .kb-search-input::-webkit-search-cancel-button {
-        -webkit-appearance: none;
-        appearance: none;
+    /* Barra que agrupa breadcrumbs + form */
+    .kb-hero-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px;
     }
 
-    /* ====== Estilo del buscador tipo pill ====== */
+    /* ===== Buscador tipo pill ===== */
     .kb-search {
         position: relative;
         width: min(860px, 92vw);
     }
-
     .kb-search-input {
         height: 56px;
         border-radius: 9999px;
@@ -304,17 +307,6 @@
         font-size: 16px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
-
-    .kb-search-input::placeholder {
-        color: #9aa3af;
-    }
-
-    .kb-search-input:focus {
-        outline: none;
-        border: none;
-        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 0 0 5px rgba(36, 78, 141, 0.35);
-    }
-
     .kb-search-icon {
         position: absolute;
         left: 20px;
@@ -324,7 +316,17 @@
         color: #111;
         pointer-events: none;
     }
-
+    .kb-clear-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #9aa3af;
+        font-size: 20px;
+    }
     .kb-loader {
         position: absolute;
         right: 45px;
@@ -337,34 +339,16 @@
         border-radius: 50%;
         animation: spin 1.2s linear infinite;
     }
-
     @keyframes spin {
         to {
             transform: translateY(-50%) rotate(360deg);
         }
     }
 
-    .kb-clear-btn {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        cursor: pointer;
-        color: #9aa3af;
-        font-size: 20px;
-    }
-
-    /* ====== Dropdown de resultados ====== */
+    /* === Dropdown: estilos comunes (misma separación) === */
     .kb-search-results {
         position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        width: min(860px, 92vw);
-        top: calc(100% + 8px);
+        top: calc(100% + 8px); /* separación estándar */
         background: #fff;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
@@ -374,13 +358,56 @@
         z-index: 100;
     }
 
-    .kb-search-results .dropdown-item + .dropdown-item {
-        border-top: 1px solid #f0f2f5;
+    /* Home (centrado, ancho grande) */
+    .kb-search-results--centered {
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(860px, 92vw);
     }
 
-    .dropdown-item:hover,
-    .dropdown-item:focus {
-        background-color: #f4f5f5;
+    /* Categoría (ancho exacto del input) */
+    .kb-search-results--attached {
+        left: 0;
+        right: 0;
+        transform: none;
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Oculta el botón nativo de limpiar (dejamos solo la X custom) */
+    .kb-search-input::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+    }
+    .kb-search-input::-ms-clear {
+        display: none;
+        width: 0;
+        height: 0;
+    }
+
+    /* === Fix: evitar corte del texto en resultados (flex shrink + wrapping) === */
+    .kb-search-results .dropdown-item {
+        display: flex; /* por si algún estilo externo lo cambia */
+        align-items: flex-start;
+        gap: 12px;
+        padding-right: 16px; /* opcional: aire a la derecha */
+    }
+
+    .kb-search-results .dropdown-item > i {
+        flex: 0 0 auto;
+    }
+
+    .kb-search-results .dropdown-item > div {
+        flex: 1 1 auto;
+        min-width: 0; /* 👈 permite encoger y envolver el texto */
+    }
+
+    /* Forzar que el snippet se parta correctamente */
+    .kb-search-results .dropdown-item p {
+        white-space: normal;
+        overflow-wrap: anywhere; /* o "break-word" si prefieres */
+        word-break: break-word;
     }
 </style>
 
