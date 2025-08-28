@@ -120,15 +120,23 @@ body {
     /* ajusta si quieres más/menos */
 }
 
-// /* si tienes barra fija arriba, evita que el título quede tapado */
-// .article-content h2,
-// .article-content h3,
-// .article-content h4,
-// .article-content h5,
-// .article-content h6 {
-//     scroll-margin-top: 96px;
-//     /* ajusta al alto de tu header */
-// }
+@media (max-width: 991.98px) {
+    .article-content::after {
+        content: none;
+        display: none;
+        height: 0;
+    }
+}
+
+/* si tienes barra fija arriba, evita que el título quede tapado */
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+    scroll-margin-top: 26px;
+    /* ajusta al alto de tu header */
+}
 
 
 //estilo para las listas

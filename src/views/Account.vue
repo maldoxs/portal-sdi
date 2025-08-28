@@ -93,17 +93,20 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.375rem 0;
-        color: inherit;
+        color: #555;
+        font-size: 16px;
+        font-weight: 400;
     }
     .kb-cats__count {
         font-size: 0.875rem;
         color: #6b7280;
     }
     .kb-cats__item.is-active .kb-cats__name {
-        font-weight: 600;
+        font-weight: 900;
         color: var(--bs-primary);
     }
     .kb-cats__item.is-active .kb-cats__count {
+        font-weight: 900;
         color: var(--bs-primary);
     }
 

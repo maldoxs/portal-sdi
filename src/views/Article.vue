@@ -134,7 +134,7 @@
             </div>
 
             <div class="col-lg-4 d-none d-lg-block">
-                <div class="card p-4 mb-4 sticky-top" style="top: 20px">
+                <div class="card p-4 mb-4 toc-card sticky-top">
                     <h5 class="card-title">Contenido</h5>
                     <nav class="nav nav-pills flex-column">
                         <a
