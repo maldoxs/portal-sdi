@@ -39,7 +39,7 @@ export const topics = [
         title: "Derechos de autor y aspectos legales",
         display: "Derechos de autor y aspectos legales",
         description: "Información importante sobre cómo manejamos su privacidad y datos.",
-        icon: "bi bi-gavel",
+        icon: "bi bi-c-circle",
         order: 5,
     },
     {

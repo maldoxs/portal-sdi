@@ -13,6 +13,9 @@
     const categorySlug = computed(() => String(route.params.categorySlug || "my-account"));
     const current = computed(() => topics.find((t) => t.slug === categorySlug.value) || topics[0]);
     const filtered = computed(() => articles.filter((a) => a.category === current.value.slug));
+
+    // icono dinámico (con fallback)
+    const currentIconClass = computed(() => current.value?.iconClass || "bi bi-journal-text");
 </script>
 
 <template>
@@ -29,7 +32,10 @@
             <div class="row">
                 <div class="col-lg-8">
                     <div class="d-flex align-items-start mb-3">
-                        <i class="bi bi-share fs-2 text-primary me-2" aria-hidden="true"></i>
+                        <!-- ⬇️ ÍCONO DINÁMICO -->
+                        <i
+                            :class="[current.icon, 'fs-2', 'kb-color', 'me-2']"
+                            aria-hidden="true"></i>
                         <div>
                             <h2 class="h4 mb-1">{{ current.display || current.title }}</h2>
                             <p class="mb-0 text-muted">{{ current.description }}</p>

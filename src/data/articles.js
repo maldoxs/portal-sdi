@@ -1,3 +1,10 @@
+//Taf-Resoluciones
+import tafResolucionesRequerimiento from "../contents/taf-resoluciones/requerimiento.js";
+import tafResolucionesRepositorioGit from "../contents/taf-resoluciones/repositorioGit.js";
+import tafResolucionesModeloDatos from "../contents/taf-resoluciones/modeloDatos.js";
+import tafResolucionesJirasAsociados from "../contents/taf-resoluciones/jirasAsociados.js";
+import tafResolucionesAmbientes from "../contents/taf-resoluciones/ambientesBd.js";
+
 export const articles = [
     // 10 artículos para "Mi Cuenta" con el contenido que proporcionaste
     {
@@ -157,42 +164,53 @@ export const articles = [
         excerpt: "Un resumen de todas las opciones de configuración disponibles.",
         content: "Contenido de 'Visión general de la configuración de la cuenta'...",
     },
-    // 5 artículos para "Empezando"
+    // artículos Taf-Resoluciones
     {
-        id: "taf-resoluciones-first-article",
-        title: "Primeros pasos con la plataforma",
+        id: "tafResoluciones_requerimiento",
+        title: "Requerimiento Taf-resoluciones",
         category: "taf-resoluciones",
-        excerpt: "Guía rápida para tus primeros pasos con la plataforma.",
-        content: "Contenido de 'Primeros pasos con la plataforma'...",
+        excerpt:
+            "Documento que detalla el origen, objetivos y alcance funcional del sistema TAF-Resoluciones.",
+        content: tafResolucionesRequerimiento,
     },
     {
-        id: "platform-main-features",
-        title: "Características principales de la plataforma",
+        id: "tafResoluciones_repositorio-git",
+        title: "Repositorio GIT",
         category: "taf-resoluciones",
-        excerpt: "Descubre las funciones más importantes de la plataforma.",
-        content: "Contenido de 'Características principales de la plataforma'...",
+        excerpt: "Aquí encontrarás todos los archivos y el código fuente del proyecto",
+        content: tafResolucionesRepositorioGit,
     },
     {
-        id: "your-first-project",
-        title: "Creando tu primer proyecto",
+        id: "tafResoluciones_modeloDatos",
+        title: "Modelo de Datos ",
         category: "taf-resoluciones",
-        excerpt: "Tutorial paso a paso para crear tu primer proyecto.",
-        content: "Contenido de 'Creando tu primer proyecto'...",
+        excerpt:
+            "Estructura de tablas y relaciones que soportan la trazabilidad de resoluciones, impugnaciones y reclamos en TAF-Resoluciones.",
+        content: tafResolucionesModeloDatos,
     },
     {
-        id: "navigating-the-dashboard",
-        title: "Navegando por el panel de control",
+        id: "tafResoluciones_jirasAsociados",
+        title: "Jiras asociados",
         category: "taf-resoluciones",
-        excerpt: "Aprende a usar el panel de control.",
-        content: "Contenido de 'Navegando por el panel de control'...",
+        excerpt:
+            "Listado de requerimientos y sub-tareas vinculadas al proyecto TAF-Resoluciones, utilizados para el control de avances, gestión de incidencias y coordinación entre equipos.",
+        content: tafResolucionesJirasAsociados,
     },
     {
-        id: "faq-for-new-users",
-        title: "Preguntas frecuentes para nuevos usuarios",
+        id: "tafResoluciones_baseDatos",
+        title: "Base de Datos del Sistema ",
         category: "taf-resoluciones",
-        excerpt: "Respuestas a las preguntas más comunes.",
-        content: "Contenido de 'Preguntas frecuentes para nuevos usuarios'...",
+        excerpt: "Bases de Datos de los distintos ambientes Desarrollo,Certificación y Producción.",
+        content: tafResolucionesAmbientes,
     },
+    {
+        id: "tafResoluciones_A",
+        title: "Base de Datos del Sistema ",
+        category: "taf-resoluciones",
+        excerpt: "",
+        content: tafResolucionesAmbientes,
+    },
+
     // 2 artículos para "Facturación y pagos"
     {
         id: "billing-first-article",

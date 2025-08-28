@@ -273,7 +273,6 @@
 
 <style scoped lang="scss">
     @use "../styles/variables" as *;
-    @use "../styles/mixins" as *; // ajusta la ruta
 
     .color {
         background-color: #0064a0;
