@@ -4,14 +4,14 @@
     import { articles } from "../data/articles.js";
     import { topics } from "../data/topics.js";
 
-    /* 🔹 Reusamos tu franja + buscador tal cual */
     import HeroSection from "../components/HeroSection.vue";
 
     const route = useRoute();
     const activeHeadingId = ref("");
     const headings = ref([]);
 
-    /* Artículo actual por ID */
+    const needsPadding = ref(false);
+
     const article = computed(() => {
         const articleId = route.params.articleId;
         return articles.find((a) => a.id === articleId) || {};
@@ -26,7 +26,6 @@
         return article.value.category || "general";
     });
 
-    /* ===== TU LÓGICA TAL CUAL ===== */
     const extractHeadings = () => {
         const tempEl = document.createElement("div");
         tempEl.innerHTML = article.value.content;
@@ -77,10 +76,24 @@
         if (el) el.scrollIntoView({ behavior: "smooth" });
     };
 
+    const checkContentHeight = () => {
+        const contentContainer = document.querySelector(".col-lg-8");
+
+        if (!contentContainer) {
+            return;
+        }
+
+        const contentHeight = contentContainer.scrollHeight;
+        const viewportHeight = window.innerHeight;
+
+        needsPadding.value = contentHeight < viewportHeight;
+    };
+
     watch(article, () => {
         if (article.value.content) {
             extractHeadings();
             nextTick(() => {
+                checkContentHeight();
                 window.addEventListener("scroll", handleScroll);
                 handleScroll();
             });
@@ -91,6 +104,7 @@
         if (article.value.content) {
             extractHeadings();
             nextTick(() => {
+                checkContentHeight();
                 window.addEventListener("scroll", handleScroll);
                 handleScroll();
             });
@@ -103,7 +117,6 @@
 </script>
 
 <template>
-    <!-- 🔹 Franja azul con tu MISMO buscador y el breadcrumb original adentro -->
     <HeroSection
         id="article-hero"
         :showTitle="false"
@@ -126,11 +139,11 @@
         </template>
     </HeroSection>
 
-    <div class="container my-5">
+    <div class="container my-5" v-if="article.content">
         <div class="row">
             <div class="col-lg-8">
                 <h2 class="mb-4">{{ article.title }}</h2>
-                <div class="article-content"></div>
+                <div class="article-content" :class="{ 'padded-content': needsPadding }"></div>
             </div>
 
             <div class="col-lg-4 d-none d-lg-block">
@@ -154,14 +167,10 @@
 </template>
 
 <style scoped>
-    /* ========== HERO (franja azul) igual a categorías ========== */
-
-    /* (A) El container del hero sin límite para alinear breadcrumb + buscador */
     .kb-hero-compact :deep(.container) {
         max-width: 100%;
     }
 
-    /* (B) Barra: breadcrumb IZQ + buscador DER, misma separación lateral */
     .kb-hero-compact :deep(.kb-hero-bar) {
         display: flex;
         align-items: center;
@@ -173,10 +182,6 @@
         gap: 20px;
     }
 
-    /* (C) ⚠️ FIX principal: bajar p-5 → py-4 SOLO en vertical
-      (se mantiene p-5 en laterales para no “achicar” el ancho visual) */
-
-    /* (D) Buscador con las mismas medidas que Account.vue */
     .kb-hero-compact :deep(.kb-search) {
         position: relative;
         width: clamp(360px, 36vw, 560px);
@@ -186,7 +191,6 @@
         height: 48px;
     }
 
-    /* (E) Dropdown pegado al input, mismo ancho */
     .kb-hero-compact :deep(.kb-search > .kb-search-results) {
         left: 0;
         right: 0;
@@ -196,7 +200,6 @@
         z-index: 1000;
     }
 
-    /* (F) Breadcrumb en blanco (texto y separadores “/”) */
     .kb-bc-white {
         margin: 0;
         line-height: 1.1;
@@ -212,7 +215,6 @@
         opacity: 0.85;
     }
 
-    /* (G) Responsivo igual a categorías */
     @media (max-width: 992px) {
         .kb-hero-compact :deep(.kb-hero-bar) {
             flex-direction: column;
@@ -237,7 +239,6 @@
         }
     }
 
-    /* ========== TU TOC lateral (sin duplicados) ========== */
     .nav-link {
         color: #555;
         border-radius: 0;
@@ -266,15 +267,18 @@
     }
 
     #article-hero {
-        padding: 1.5rem !important; /* p-4 de bootstrap */
+        padding: 1.5rem !important;
     }
 
-    /* Sube el stacking solo en Article.vue */
     .kb-hero-compact :deep(.kb-search) {
         position: relative;
         z-index: 2001;
     }
     .kb-hero-compact :deep(.kb-search-results) {
         z-index: 2100;
+    }
+
+    .padded-content {
+        padding-bottom: 35vh;
     }
 </style>

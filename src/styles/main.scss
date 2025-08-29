@@ -1,4 +1,3 @@
-// src/styles/main.scss
 @use 'variables' as *;
 @use 'kb-theme' as *;
 @use 'mixins' as *;
@@ -110,22 +109,6 @@ body {
 
 .fondo {
     background-color: #f4f5f5;
-}
-
-/* deja espacio al final para que el último heading pueda intersectar */
-.article-content::after {
-    content: "";
-    display: block;
-    height: 35vh;
-    /* ajusta si quieres más/menos */
-}
-
-@media (max-width: 991.98px) {
-    .article-content::after {
-        content: none;
-        display: none;
-        height: 0;
-    }
 }
 
 /* si tienes barra fija arriba, evita que el título quede tapado */
