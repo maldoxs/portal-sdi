@@ -5,9 +5,11 @@
 </script>
 
 <template>
-    <div>
+    <div class="app-container">
         <Header />
-        <router-view />
+        <main class="main-content">
+            <router-view />
+        </main>
         <Footer />
     </div>
 </template>

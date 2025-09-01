@@ -4,6 +4,8 @@ import tafResolucionesRepositorioGit from "../contents/taf-resoluciones/reposito
 import tafResolucionesModeloDatos from "../contents/taf-resoluciones/modeloDatos.js";
 import tafResolucionesJirasAsociados from "../contents/taf-resoluciones/jirasAsociados.js";
 import tafResolucionesAmbientes from "../contents/taf-resoluciones/ambientesBd.js";
+import tafResolucionesUrlAmbientes from "../contents/taf-resoluciones/urlAmbientes.js";
+import tafResolucionesFlujoProceso from "../contents/taf-resoluciones/flujoproceso.js";
 
 export const articles = [
     // 10 artículos para "Mi Cuenta" con el contenido que proporcionaste
@@ -204,11 +206,21 @@ export const articles = [
         content: tafResolucionesAmbientes,
     },
     {
-        id: "tafResoluciones_A",
-        title: "Base de Datos del Sistema ",
+        id: "tafResoluciones_Ambientes",
+        title: "Ambientes de trabajo ",
         category: "taf-resoluciones",
-        excerpt: "",
-        content: tafResolucionesAmbientes,
+        excerpt:
+            "Detalles sobre los diferentes ambientes de trabajo: Desarrollo, Certificación y Producción ",
+        content: tafResolucionesUrlAmbientes,
+    },
+
+    {
+        id: "tafResoluciones_flujoProceso",
+        title: "Flujo Proceso Taf-Resoluciones ",
+        category: "taf-resoluciones",
+        excerpt:
+            "Busca solucionar las discrepancias de montos en resoluciones. Para ello, crea un modelo con trazabilidad completa que unifica los datos y rastrea cada resolución desde su origen hasta el resultado final.",
+        content: tafResolucionesFlujoProceso,
     },
 
     // 2 artículos para "Facturación y pagos"
