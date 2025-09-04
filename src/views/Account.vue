@@ -1,13 +1,27 @@
 <script setup>
-    import { ref, computed } from "vue";
-    import { useRoute } from "vue-router";
+    import { ref, computed, watch } from "vue";
+    import { useRoute, useRouter } from "vue-router";
     import HeroSection from "../components/HeroSection.vue";
     import Breadcrumbs from "../components/Breadcrumbs.vue";
     import ArticleList from "../components/ArticleList.vue";
     import { topics } from "../data/topics.js";
     import { articles } from "../data/articles.js";
 
+    // ... tus variables existentes
     const route = useRoute();
+    const router = useRouter(); // ✅ Inicializa el router
+
+    // ✅ Crea una variable reactiva para el estado de la página
+    const currentPage = ref(parseInt(route.query.page) || 1);
+
+    // Observa cambios en la URL (parámetro 'page')
+    watch(
+        () => route.query.page,
+        (newPage) => {
+            currentPage.value = parseInt(newPage) || 1;
+        }
+    );
+
     const query = ref("");
 
     const categorySlug = computed(() => String(route.params.categorySlug || "my-account"));
@@ -42,7 +56,12 @@
                         </div>
                     </div>
 
-                    <ArticleList :articles-to-display="filtered" :category-slug="categorySlug" />
+                    <ArticleList
+                        :articles-to-display="filtered"
+                        :category-slug="categorySlug"
+                        @update:currentPage="
+                            (newPage) => router.push({ query: { page: newPage } })
+                        " />
                 </div>
 
                 <div class="col-lg-4">

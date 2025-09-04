@@ -9,6 +9,7 @@
                     :to="{
                         name: 'Article',
                         params: { categorySlug: categorySlug, articleId: article.id },
+                        query: { page: currentPage }, // ✅ Pasa la página actual
                     }"
                     class="text-decoration-none text-dark"
                     >{{ article.title }}</router-link
@@ -29,7 +30,11 @@
 </template>
 
 <script setup>
-    import { ref, computed } from "vue";
+    import { computed, ref, watch } from "vue";
+    import { useRoute } from "vue-router"; // Importa useRoute
+
+    // Obtiene la ruta actual
+    const route = useRoute();
 
     const props = defineProps({
         articlesToDisplay: {
@@ -42,15 +47,43 @@
         },
     });
 
-    const currentPage = ref(1);
+    // Define el estado local de la paginación
+    const currentPage = ref(parseInt(route.query.page) || 1); //  Lee la página de la URL
     const pageSize = 5;
 
-    const totalPages = computed(() => Math.ceil(props.articlesToDisplay.length / pageSize));
-
+    // Lógica de paginación
     const paginatedArticles = computed(() => {
-        const startIndex = (currentPage.value - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        return props.articlesToDisplay.slice(startIndex, endIndex);
+        const start = (currentPage.value - 1) * pageSize;
+        const end = start + pageSize;
+        return props.articlesToDisplay.slice(start, end);
+    });
+
+    // Observa cambios en la URL (parámetro 'page')
+    watch(
+        () => route.query.page,
+        (newPage) => {
+            currentPage.value = parseInt(newPage) || 1;
+        }
+    );
+
+    // Función para cambiar de página
+    const changePage = (page) => {
+        // Evita navegar a páginas fuera de rango
+        if (page >= 1 && page <= totalPages.value) {
+            currentPage.value = page;
+            // ✅ Emite el evento para que Account.vue actualice la URL
+            emit("update:currentPage", page);
+        }
+    };
+
+    // Lógica de paginación...
+    const totalPages = computed(() => Math.ceil(props.articlesToDisplay.length / pageSize));
+    const pages = computed(() => {
+        const result = [];
+        for (let i = 1; i <= totalPages.value; i++) {
+            result.push(i);
+        }
+        return result;
     });
 
     const nextPage = () => {

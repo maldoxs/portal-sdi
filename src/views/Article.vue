@@ -4,7 +4,7 @@
     // 'ref', 'computed', etc., son funciones de Vue para manejar datos reactivos y el ciclo de vida del componente.
     // 'useRoute' es para acceder a la URL, y los demás son nuestros datos locales.
     import { ref, computed, onMounted, onUnmounted, watch, nextTick } from "vue";
-    import { useRoute } from "vue-router";
+    import { useRoute, useRouter } from "vue-router";
     import { articles } from "../data/articles.js";
     import { topics } from "../data/topics.js";
     import HeroSection from "../components/HeroSection.vue";
@@ -12,9 +12,13 @@
     // Variables de Estado (Estado Reactivo)
     // Son como el "cerebro" del componente. Su valor puede cambiar y la vista se actualiza.
     const route = useRoute();
+    const router = useRouter();
     const activeHeadingId = ref(""); // Guarda el ID del título activo en el TOC para resaltarlo.
     const headings = ref([]); // Un array que contendrá los títulos del artículo.
     const needsPadding = ref(false); // 🆕 ¡Esta es la clave del "efecto colchón"! Es un interruptor que se vuelve `true` si el artículo es corto.
+
+    // ✅ Obtén el número de página de la ruta
+    const pageNumber = computed(() => route.query.page || 1);
 
     // Propiedades Calculadas (Computed Properties)
     // Estas variables se actualizan automáticamente cuando cambian sus dependencias. Son muy eficientes.
@@ -147,6 +151,15 @@
     <div class="container my-5" v-if="article.content">
         <div class="row">
             <div class="col-lg-8">
+                <router-link
+                    :to="{
+                        name: 'Category',
+                        params: { categorySlug: categorySlug },
+                        query: { page: pageNumber }, // ✅ Esto te regresará a la página correcta
+                    }"
+                    class="btn btn-sm btn-outline-secondary mb-4">
+                    <i class="bi bi-arrow-left me-2"></i> Volver al listado
+                </router-link>
                 <h2 class="mb-4">{{ article.title }}</h2>
                 <div class="article-content" :class="{ 'padded-content': needsPadding }"></div>
             </div>

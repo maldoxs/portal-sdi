@@ -15,17 +15,17 @@ export default `<h4 class="mt-4">Introducción</h4>
       </p>
     </div>
 
-    <h4 class="mt-4">¿Qué se gestiona en los Jiras?</h4>
+    <p class="mt-4">¿Qué se gestiona en los Jiras?</p>
 
 <div class="accordion mt-3" id="accordionJiras">
   <!-- Requerimientos -->
   <div class="accordion-item">
     <p class="accordion-header" id="headingOne">
-      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+      <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
         Requerimientos
       </button>
     </p>
-    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionJiras">
+    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionJiras">
       <div class="accordion-body">
         Describen el origen, objetivos y alcance funcional del proyecto.
       </div>
